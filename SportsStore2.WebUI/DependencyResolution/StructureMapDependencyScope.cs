@@ -15,20 +15,20 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace SportsStore2.WebUI.DependencyResolution
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using SportsStore2.Domain.Abstract;
+using SportsStore2.Domain.Entities;
+using Microsoft.Practices.ServiceLocation;
+using Moq;
+using StructureMap;
+using SportsStore2.Domain.Concrete;
+using System.Configuration;
+
+namespace SportsStore.WebUI.DependencyResolution
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Web;
-
-    using Microsoft.Practices.ServiceLocation;
-    using SportsStore2.Domain.Abstract;
-    using SportsStore2.Domain.Entities;
-    using SportsStore2.Domain.Concrete;
-    using StructureMap;
-    using Moq;
-
 
     /// <summary>
     /// The structure map dependency scope.
@@ -47,27 +47,24 @@ namespace SportsStore2.WebUI.DependencyResolution
         {
             if (container == null)
             {
-                throw new ArgumentException("container");
-
+                throw new ArgumentNullException("container");
             }
             Container = container;
 
-
+            EmailSettings emailSettings = new EmailSettings
+            {
+                WriteAsFile = bool.Parse(ConfigurationManager.AppSettings["Email.WriteAsFile"] ?? "false")
+            };
+            container.Inject<EmailSettings>(emailSettings);
         }
 
         #endregion
 
-        private void AddBindings(IContainer container)
-        {
-            Mock<IProductRepository> mock = new Mock<IProductRepository>();
-            mock.Setup(m => m.Products).Returns(new List<Product>
-            {
-                new Product { Name = "Football", Price = 25 },
-                new Product {Name = "Surf board", Price = 179 },
-                new Product {Name = "Running shoes", Price = 95 }
-            });
-            container.Inject<IProductRepository>(mock.Object);
-        }
+        #region Constructors and Destructors
+
+
+
+        #endregion
 
         #region Public Properties
 

@@ -26,8 +26,8 @@ namespace SportsStore2.WebUI.App_Start {
 	using System.Web.Mvc;
 
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
-
-	using SportsStore2.WebUI.DependencyResolution;
+    using SportsStore.WebUI.DependencyResolution;
+    using SportsStore2.WebUI.DependencyResolution;
 
     using StructureMap;
     

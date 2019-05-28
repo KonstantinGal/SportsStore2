@@ -21,25 +21,28 @@ using SportsStore2.Domain.Concrete;
 namespace SportsStore2.WebUI.DependencyResolution
 {
     using StructureMap;
-    using SportsStore2.Domain.Abstract;
-    using SportsStore2.Domain.Concrete;
     using StructureMap.Configuration.DSL;
     using StructureMap.Graph;
-	
-    public class DefaultRegistry : Registry {
+    using SportsStore2.Domain.Abstract;
+    using SportsStore2.Domain.Concrete;
+
+
+    public class DefaultRegistry : Registry
+    {
         #region Constructors and Destructors
-        public DefaultRegistry() {
+
+        public DefaultRegistry()
+        {
             Scan(
                 scan => {
                     scan.TheCallingAssembly();
                     scan.WithDefaultConventions();
-					scan.With(new ControllerConvention());
+                    scan.With(new ControllerConvention());
                 });
             For<IProductRepository>().Use<EFProductRepository>();
-            //For<IExample>().Use<Example>();
+            For<IOrderProcessor>().Use<EmailOrderProcessor>();            //For<IExample>().Use<Example>();
         }
 
         #endregion
-
     }
 }
