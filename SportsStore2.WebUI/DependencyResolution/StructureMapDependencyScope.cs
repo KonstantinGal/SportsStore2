@@ -51,8 +51,8 @@ namespace SportsStore2.WebUI.DependencyResolution
 
             }
             Container = container;
-            // AddBindings(container); 
-            // FAKE NEWS
+
+
         }
 
         #endregion
