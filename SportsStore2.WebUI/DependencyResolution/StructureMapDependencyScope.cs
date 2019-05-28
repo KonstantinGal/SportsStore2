@@ -15,117 +15,121 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using SportsStore2.Domain.Abstract;
-using SportsStore2.Domain.Entities;
-using StructureMap.AutoMocking;
-
 namespace SportsStore2.WebUI.DependencyResolution
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Web;
-	using Microsoft.Practices.ServiceLocation;
-	using Moq;
-	using SportsStore2.Domain.Entities;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web;
+
+    using Microsoft.Practices.ServiceLocation;
     using SportsStore2.Domain.Abstract;
-	using StructureMap;
-
-	/// <summary>
-	/// The structure map dependency scope.
-	/// </summary>
-	public class StructureMapDependencyScope : ServiceLocatorImplBase
-	{
-		#region Constants and Fields
-
-		private const string NestedContainerKey = "Nested.Container.Key";
-
-		#endregion
+    using SportsStore2.Domain.Entities;
+    using SportsStore2.Domain.Concrete;
+    using StructureMap;
+    using Moq;
 
 
-		#region Constructors and Destructors
+    /// <summary>
+    /// The structure map dependency scope.
+    /// </summary>
+    public class StructureMapDependencyScope : ServiceLocatorImplBase
+    {
+        #region Constants and Fields
 
-		public StructureMapDependencyScope(IContainer container)
-		{
-			if (container == null)
-			{
-				throw new ArgumentNullException("container");
-			}
+        private const string NestedContainerKey = "Nested.Container.Key";
 
+        #endregion
+
+        #region Constructors and Destructors
+
+        public StructureMapDependencyScope(IContainer container)
+        {
+            if (container == null)
+            {
+                throw new ArgumentException("container");
+
+            }
             Container = container;
-            AddBindings(container);
-		}
+            // AddBindings(container); 
+            // FAKE NEWS
+        }
 
-		#endregion
+        #endregion
 
-		private void AddBindings(IContainer container)
-		{
-			Mock<IProductRepository> mock = new Mock<IProductRepository>();
-			mock.Setup(m => m.Products).Returns(new List<Product>
-			{
-				new Product {Name = "Football", Price = 25},
-				new Product {Name = "Surf board", Price = 179},
-				new Product {Name = "Running shoes", Price = 95}
-			});
-			container.Inject<IProductRepository>(mock.Object);
-		}
+        private void AddBindings(IContainer container)
+        {
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new List<Product>
+            {
+                new Product { Name = "Football", Price = 25 },
+                new Product {Name = "Surf board", Price = 179 },
+                new Product {Name = "Running shoes", Price = 95 }
+            });
+            container.Inject<IProductRepository>(mock.Object);
+        }
 
-		#region Public Properties
+        #region Public Properties
 
-		public IContainer Container { get; set; }
+        public IContainer Container { get; set; }
 
-		public IContainer CurrentNestedContainer
-		{
-			get { return (IContainer) HttpContext.Items[NestedContainerKey]; }
-			set { HttpContext.Items[NestedContainerKey] = value; }
-		}
+        public IContainer CurrentNestedContainer
+        {
+            get
+            {
+                return (IContainer)HttpContext.Items[NestedContainerKey];
+            }
+            set
+            {
+                HttpContext.Items[NestedContainerKey] = value;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		private HttpContextBase HttpContext
-		{
-			get
-			{
-				var ctx = Container.TryGetInstance<HttpContextBase>();
-				return ctx ?? new HttpContextWrapper(System.Web.HttpContext.Current);
-			}
-		}
+        private HttpContextBase HttpContext
+        {
+            get
+            {
+                var ctx = Container.TryGetInstance<HttpContextBase>();
+                return ctx ?? new HttpContextWrapper(System.Web.HttpContext.Current);
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods and Operators
+        #region Public Methods and Operators
 
-		public void CreateNestedContainer()
-		{
-			if (CurrentNestedContainer != null)
-			{
-				return;
-			}
+        public void CreateNestedContainer()
+        {
+            if (CurrentNestedContainer != null)
+            {
+                return;
+            }
+            CurrentNestedContainer = Container.GetNestedContainer();
+        }
 
-			CurrentNestedContainer = Container.GetNestedContainer();
-		}
+        public void Dispose()
+        {
+            DisposeNestedContainer();
+            Container.Dispose();
+        }
 
-		public void Dispose()
-		{
-			DisposeNestedContainer();
-			Container.Dispose();
-		}
+        public void DisposeNestedContainer()
+        {
+            if (CurrentNestedContainer != null)
+            {
+                CurrentNestedContainer.Dispose();
+                CurrentNestedContainer = null;
+            }
+        }
 
-		public void DisposeNestedContainer()
-		{
-			if (CurrentNestedContainer != null)
-			{
-				CurrentNestedContainer.Dispose();
-				CurrentNestedContainer = null;
-			}
-		}
-
-		public IEnumerable<object> GetServices(Type serviceType)
-		{
-			return DoGetAllInstances(serviceType);
-		}
+        public IEnumerable<object> GetServices(Type serviceType)
+        {
+            return DoGetAllInstances(serviceType);
+        }
 
         #endregion
 

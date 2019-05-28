@@ -8,7 +8,7 @@ using SportsStore2.Domain.Entities;
 
 namespace SportsStore2.Domain.Concrete
 {
-    class EFDbContext : System.Data.Entity.DbContext
+    class EFDbContext : DbContext
     {
         public DbSet<Product> Products { get; set; }
     }
